@@ -1,0 +1,7 @@
+This is the README for conference.cls.
+The author and maintainer of conference.cls is Seamus Bradley.
+tex@seamusbradley.net
+
+conference.cls is a class file for generating conference schedules.
+
+Thanks to Joseph Wright and egreg on tex.stackexchange.com for advice on LaTeX3.
