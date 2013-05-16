@@ -9,7 +9,7 @@
   % and version 1.3 or later is part of all distributions of LaTeX
   % version 2005/12/01 or later.
   %
-  % This work has the LPPL maintenance status `maintained'.
+  % This work has the LPPL maintenance status `author-maintained'.
   % 
   % The Current Maintainer of this work is Seamus Bradley
   % tex@seamusbradley.net
@@ -21,10 +21,10 @@
 \RequirePackage{expl3}
 \ProvidesExplClass{conference}{2013/05/13}{0.2}{Conference Schedule Class}
 
-%\LoadClass{scrartcl}
-\LoadClass{article}
+\LoadClass[fontsize=14pt]{scrartcl}
+%\LoadClassWithOptions{article}[12pt]
 
-\RequirePackage{xparse,l3sort,multirow,typearea,hyperref,tabularx}
+\RequirePackage{xparse,l3sort,multirow,typearea,hyperref,tabularx,array}
 
 \areaset{160mm}{270mm}
 
@@ -79,6 +79,7 @@
 
 \seq_new:N \g_names_seq
 \tl_new:N \l_thedate_tl
+\tl_new:N \l_tmpnote_tl
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % The AddTalk macro
@@ -86,11 +87,11 @@
 
 % Time, Name, Title
 \NewDocumentCommand{\PrintTalk}{mmmm}{
-  \emph{#1} &  \textbf{#2} &  #3 \\
+  \emph{#1} &  \textbf{#2} &  #3  \\
 }
 
 % Sort, Name, Title, Time, Abstract
-\NewDocumentCommand{\AddTalk}{mmmm+m}{
+\NewDocumentCommand{\AddTalk}{mmmm+m o}{
   \prop_new:c {g_#1_prop}
   \prop_gput:cnn {g_#1_prop} {name} {#2}
   \prop_gput:cnn {g_#1_prop} {title} {#3}
@@ -98,7 +99,13 @@
   \prop_gput:cnn {g_#1_prop} {abstract} {#5}
   \prop_gput:cnn {g_#1_prop} {date} {\l_thedate_tl}
   \seq_gput_right:Nn \g_names_seq {#1}
-  \PrintTalk{#4}{#2}{#3}{#1}
+  \IfNoValueTF{#6}{
+      \PrintTalk{#4}{#2}{#3}{#1}
+  }{
+    \prop_gput:cnn {g_#1_prop} {note} {#6}
+    \PrintTalk{#4}{#2}{#3~ [#6]}{#1}
+  }
+
 }
 
 \NewDocumentCommand{\AddBreak}{mm}{
@@ -116,6 +123,7 @@
 % The Day environment
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\setlength\extrarowheight{0.5em}
 \NewDocumentEnvironment{Day}{m}{
   \tl_set:Nn \l_thedate_tl {#1}
   \begin{center}
@@ -131,6 +139,7 @@
   \textbf{\prop_get:cn {g_#1_prop} {title}},~
   \emph{\prop_get:cn {g_#1_prop} {name}},~
   \prop_get:cn {g_#1_prop} {date},~ \prop_get:cn {g_#1_prop} {time}.~
+  \prop_get:cnNTF {g_#1_prop} {note} \l_tmpa_tl {\emph{[\tl_use:N \l_tmpa_tl]}.~}{}
   \prop_get:cn {g_#1_prop} {abstract}\\[1em]\par
 }
 
